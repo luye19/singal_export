@@ -5,6 +5,8 @@ from pynput.keyboard import Listener
 import time
 
 """鼠标监视，读取关键点坐标"""
+
+
 # with pynput.mouse.Events() as event:
 #     for i in event:
 #         # 迭代用法。
@@ -25,6 +27,7 @@ import time
 
 class listen:
     """对特定按键做出响应"""
+
     def __init__(self, listen_lst, time_min=0.5, str_len=30, end_key="ppppp"):
         # listen_lst:["qqqq",func,args,kwargs],按下qqqq后调用函数func(*args,**kwargs)
         # time.min代表按键最短间隔，超过时间则按键清零
@@ -36,6 +39,9 @@ class listen:
         self.str_len = str_len
         self.now_time = time.time()
         self.listener = None
+        self.x_mouse = dict() # 记录关键点的x坐标
+        self.y_mouse = dict() # 记录关键点的y坐标
+        self.count = 0 # 记录关键点采集的次数
 
     def on_press(self, key):
         key = str(key).replace("'", "")
@@ -50,13 +56,19 @@ class listen:
         for item in self.listen_lst:
             listen_key = item[0]
             now_str = self.now_str[-len(listen_key):]
-            if (listen_key == now_str):
+            if listen_key == now_str:
                 print("按下", now_str)
-                item[1](*item[2], **item[3])
+                self.count = self.count + 1
+                x_mouse, y_mouse = item[1](*item[2])
+                self.x_mouse[self.count] = x_mouse
+                self.y_mouse[self.count] = y_mouse
 
     def stop_listen(self):
         if self.listener is not None:
             self.listener.stop()
+            x = 0
+            y = 0
+        return x, y
 
     def run(self):
         with Listener(on_press=self.on_press) as listener:
@@ -64,10 +76,17 @@ class listen:
             listener.join()
 
 
-# if __name__ == '__main__':
-#     def test(*args, **kwargs):
-#         print("test", args, kwargs)
-#
-#
-#     a = listen([["qqq", test, (1, 2, 3), {"1": 2}], ["awa", test, [], {}]])
-#     a.run()
+def test(*args, **kwargs):
+    with pynput.mouse.Events() as event:
+        for i in event:
+            if isinstance(i, pynput.mouse.Events.Click):
+                x_mouse = i.x
+                y_mouse = i.y
+                print(i.x, i.y, i.button, i.pressed)
+                break
+    return x_mouse, y_mouse
+
+# a = listen([["qqq", test, (1, 2, 3)], ["awa", test, []]])
+# a.run()
+# print("捕捉的关键点：")
+# print(a.x_mouse, a.y_mouse)

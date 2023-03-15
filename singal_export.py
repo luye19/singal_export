@@ -1,66 +1,19 @@
+import math
+
 import pyautogui
 import pynput
+import pywinauto.mouse
 import os
-from pynput.keyboard import Listener
+from mouse import listen
 import time
 
-"""鼠标监视，读取关键点坐标"""
-with pynput.mouse.Events() as event:
-    for i in event:
-        # 迭代用法。
-        if isinstance(i, pynput.mouse.Events.Move):
-            # 鼠标移动事件。
-            print(i.x, i.y)
-            # 不要直接打印`i`，模块这里有问题，会报错。
+patient_last_y = 1242
+patient_first_y = 452
+patient_last_x = 110
 
-        elif isinstance(i, pynput.mouse.Events.Click):
-            # 鼠标点击事件。
-            print(i.x, i.y, i.button, i.pressed)
-            # 这个i.button就是上文所说的“鼠标按键”中的一个，用is语句判断即可。
 
-        elif isinstance(i, pynput.mouse.Events.Scroll):
-            # 鼠标滚轮。
-            print(i.x, i.y, i.dx, i.dy)
-
-class listen:
-    """对特定按键做出响应"""
-    def __init__(self, listen_lst, time_min=0.5, str_len=30, end_key="ppppp"):
-        # listen_lst:["qqqq",func,args,kwargs],按下qqqq后调用函数func(*args,**kwargs)
-        # time.min代表按键最短间隔，超过时间则按键清零
-        # str_len 最长监听长度
-        self.listen_lst = sorted(listen_lst, key=lambda x: len(x[0]))  # 按照"qqqq"长度排序
-        self.listen_lst.append([end_key, self.stop_listen, [], {}])
-        self.time_min = time_min
-        self.now_str = ""
-        self.str_len = str_len
-        self.now_time = time.time()
-        self.listener = None
-
-    def on_press(self, key):
-        key = str(key).replace("'", "")
-        mid_time = time.time()
-        if mid_time > self.now_time + self.time_min:
-            self.now_str = key
-        else:
-            self.now_str = self.now_str + key
-        self.now_time = mid_time
-        if len(self.now_str) > self.str_len:
-            self.now_str = self.now_str[-self.str_len:]
-        for item in self.listen_lst:
-            listen_key = item[0]
-            now_str = self.now_str[-len(listen_key):]
-            if (listen_key == now_str):
-                print("按下", now_str)
-                item[1](*item[2], **item[3])
-
-    def stop_listen(self):
-        if self.listener is not None:
-            self.listener.stop()
-
-    def run(self):
-        with Listener(on_press=self.on_press) as listener:
-            self.listener = listener
-            listener.join()
+def roll():
+    pass
 
 
 def keyboard(*args, **kwargs):
@@ -68,21 +21,19 @@ def keyboard(*args, **kwargs):
     capture_flag = pyautogui.alert(text='Please capture key coordinates.', title='Test')  # 提示关键点采集的弹窗
     if capture_flag:
         with pynput.mouse.Events() as event:
-            flag = True
             for i in event:
-                if isinstance(i, pynput.mouse.Events.Click) and flag:
-                    x_mouse = i.x
-                    y_mouse = i.y
+                if isinstance(i, pynput.mouse.Events.Click):
                     print(i.x, i.y, i.button, i.pressed)
-                    flag = False  # 捕捉到一次关键点位置后，停止捕捉
-                    break
-    return x_mouse, y_mouse
+                    break  # 捕捉到一次关键点位置后，停止捕捉
+    return i.x, i.y
 
 
-if __name__ == "__main__":
-    screen_x, screen_y = pyautogui.size()  # 获取屏幕尺寸（分辨率×分辨率）
-    global count  # 记录关键点采集的次数
-    count = 0
-    """"""
-    a = listen([["qqq", keyboard, [], {}], ["awa", keyboard, [], {}]])
-    a.run()
+a = listen([["q", keyboard, []], ["r", roll, []]], end_key='sss')
+a.run()
+patient_key_x = a.x_mouse
+patient_key_y = a.y_mouse
+n = math.floor((patient_key_y[2]- patient_key_y[1] - 140) / 126) + 1  # 鼠标滑轮滑动的次数
+pywinauto.mouse.scroll((patient_key_x[1], patient_key_y[1]), -n)
+patient_key_y2 = patient_key_y[2] - ((n - 1) * 126 + 140)
+print(patient_key_y2)
+# patient_export(patient_key_x, patient_key_y)
