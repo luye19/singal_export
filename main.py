@@ -31,9 +31,9 @@ def roll():
                     first_y = i.y
                     print(i.x, i.y, i.button, i.pressed)
                     break
-
     # pyautogui.scroll(600)
-    pywinauto.mouse.scroll((first_x, first_y), -1)  # 滑轮向上滚动
+    n = 5
+    pywinauto.mouse.scroll((first_x, first_y), -n)  # 滑轮向上滚动
     time.sleep(3)
     with pynput.mouse.Events() as event:
         for i in event:
@@ -42,11 +42,11 @@ def roll():
                 sec_y = i.y
                 print(i.x, i.y, i.button, i.pressed)
                 break
-    return (first_x - sec_x), (first_y - sec_y)
+    return (first_x - sec_x)/n, (first_y - sec_y)/n
 
 
 def mouse_click(x, y):
-    pyautogui.moveTo(x, y, duration=0.3)  # 鼠标移动到指定位置
+    pyautogui.moveTo(x, y, duration=0.2)  # 鼠标移动到指定位置
     pyautogui.click(button='left')  # 在当前位置点击左键
 
 
@@ -76,14 +76,15 @@ if __name__ == "__main__":
     patient_sec_y = a.y_mouse[8]
     patient_last_x = a.x_mouse[9]
     patient_last_y = a.y_mouse[9]
-    patient_y = patient_sec_y - patient_first_y
+    patient_y = patient_sec_y - patient_first_y  # 截图一个患者框，通过图片的像素值来确定
+    roll_y = a.y_mouse[10]
     for i in range(80):
         patient_key_y[2] = patient_key_y[2] + patient_y
         if patient_key_y[2] > patient_last_y:
-            n = math.floor((patient_last_y - patient_first_y - 140) / 126) + 1  # 鼠标滑轮滑动的次数
-            pywinauto.mouse.scroll((patient_last_x, patient_last_y), -n)
+            n = math.floor((patient_last_y - patient_first_y - 110) / 110) + 1  # 鼠标滑轮滑动的次数
+            pywinauto.mouse.scroll((patient_last_x, patient_last_y), -n) #负数，滑轮向下滚动
             time.sleep(3)
-            patient_key_y[2] = patient_key_y[2] - ((n - 1) * 126 + 140)
+            patient_key_y[2] = patient_key_y[2] - ((n - 1) * 110 + 110)
             print("滑动：", patient_key_y[2])
             patient_export(patient_key_x, patient_key_y)
         else:
