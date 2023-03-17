@@ -1,5 +1,4 @@
 import math
-
 import pyautogui
 import pynput
 import pywinauto.mouse
