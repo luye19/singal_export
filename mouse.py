@@ -7,7 +7,7 @@ import time
 """鼠标监视，读取关键点坐标"""
 
 
-# with pynput.mouse.Events() as event:
+# with pynput.mouse.Events() as ent:
 #     for i in event:
 #         # 迭代用法。
 #         if isinstance(i, pynput.mouse.Events.Move):
@@ -64,6 +64,7 @@ class listen:
                 self.y_mouse[self.count] = y_mouse
 
     def stop_listen(self):
+        capture_flag = pyautogui.alert(text="Complete the key coordinate collection and start the automatic export", title='singal export')  # 提示关键点采集的弹窗
         if self.listener is not None:
             self.listener.stop()
             x = 0

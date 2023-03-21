@@ -2,14 +2,13 @@ import math
 import pyautogui
 import pynput
 import pywinauto.mouse
-import os
 from mouse import listen
 import time
 
 
 def keyboard(*args, **kwargs):
     """读取鼠标当前所在位置"""
-    capture_flag = pyautogui.alert(text='Please capture key coordinates.', title='Test')  # 提示关键点采集的弹窗
+    capture_flag = pyautogui.alert(text='Please capture key coordinates.', title='singal export')  # 提示关键点采集的弹窗
     if capture_flag:
         with pynput.mouse.Events() as event:
             for i in event:
@@ -21,8 +20,9 @@ def keyboard(*args, **kwargs):
 
 def roll():
     """捕捉滑轮滚动一个单位的距离"""
-    capture_flag = pyautogui.alert(text='Please capture key coordinates.', title='Test')  # 提示关键点采集的弹窗
-    if capture_flag:
+    flag = pyautogui.alert(text='Measure the distance of mouse scrolling', title='singal export')  # 提示关键点采集的弹窗
+
+    if flag:
         with pynput.mouse.Events() as event:
             for i in event:
                 if isinstance(i, pynput.mouse.Events.Click):
@@ -62,8 +62,11 @@ def patient_export(key_x, key_y):
 if __name__ == "__main__":
     pyautogui.FAILSAFE = True  # 启用自动防故障功能，左上角的坐标为（0，0），将鼠标移到屏幕的左上角，来抛出failSafeException异常
     screen_x, screen_y = pyautogui.size()  # 获取屏幕尺寸（分辨率×分辨率）
+    capture_flag = pyautogui.alert(text="Press 'c' to capture the coordinates of the key points.\rPress 'r' to "
+                                        "measure the distance scrolled by the scroll wheel.\rPress 's' to start "
+                                        "automatic data export.", title='singal export')  # 提示关键点采集的弹窗
     """捕捉关键点坐标"""
-    a = listen([["q", keyboard, []], ["r", roll, []]], end_key='sss')
+    a = listen([["c", keyboard, []], ["r", roll, []]], end_key='s')
     a.run()
     a.x_mouse.popitem()
     a.y_mouse.popitem()
@@ -77,7 +80,7 @@ if __name__ == "__main__":
     patient_last_x = a.x_mouse[9]
     patient_last_y = a.y_mouse[9]
     # patient_y = patient_sec_y - patient_first_y
-    patient_y = 37  # 截图一个患者框，通过图片的像素值来确定
+    patient_y = 32  # 截图一个患者框，通过图片的像素值来确定
     roll_y = a.y_mouse[10]
     for i in range(80):
         patient_key_y[2] = patient_key_y[2] + patient_y
