@@ -1,0 +1,23 @@
+"""参数说明"""
+patient_chose_x = a.x_mouse[1]
+patient_chose_y = a.y_mouse[1]
+patient_first_x = a.x_mouse[2]
+patient_first_y = a.y_mouse[2]
+system_x = a.x_mouse[3]
+system_y = a.y_mouse[3]
+device_x = a.x_mouse[4]
+device_y = a.y_mouse[4]
+ensure_x = a.x_mouse[5]
+ensure_y = a.y_mouse[5]
+accept_x = a.x_mouse[6]
+accept_y = a.y_mouse[6]
+OK_x = a.x_mouse[7]
+OK_y = a.y_mouse[7]
+# patient_sec_x = a.x_mouse[8]
+# patient_sec_y = a.y_mouse[8]
+patient_last_x = a.x_mouse[8]
+patient_last_y = a.y_mouse[8]
+roll_x = a.x_mouse[9]
+roll_y = a.y_mouse[9]
+screen_x, screen_y = pyautogui.size()  # 获取屏幕尺寸（分辨率×分辨率）
+mouse_click(patient_chose_x, patient_chose_y)

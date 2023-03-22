@@ -4,12 +4,21 @@ import pynput
 import pywinauto.mouse
 from mouse import listen
 import time
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--Roll_num', type=int, default=11, help='滑轮滚动的次数')
+parser.add_argument('--Mouse_time', type=float, default=0.2, help='鼠标到达指定位置所用时间（second）')
+parser.add_argument('-Intervals_num', type=int, default=34, help='第一个病人与最后一个病人之间的间隔数量')
+parser.add_argument('--Patient_num', type=int, default=80, help='导出的病人总数')
+parser.add_argument('--Wait_time', type=int, default=1, help='数据正在导出的等待时间（second）')
+args = parser.parse_args()
 
 
-def keyboard(*args, **kwargs):
+def keyboard():
     """读取鼠标当前所在位置"""
-    capture_flag = pyautogui.alert(text='Please capture key coordinates.', title='singal export')  # 提示关键点采集的弹窗
-    if capture_flag:
+    flag = pyautogui.alert(text='Please capture key coordinates.', title='singal export')  # 提示关键点采集的弹窗
+    if flag:
         with pynput.mouse.Events() as event:
             for i in event:
                 if isinstance(i, pynput.mouse.Events.Click):
@@ -32,9 +41,8 @@ def roll():
                     break
     # pyautogui.scroll(600)
     pyautogui.mouseUp()
-    n = 7
-    pywinauto.mouse.scroll((first_x, first_y), -n)  # 滑轮向上滚动
-    time.sleep(3)
+    pywinauto.mouse.scroll((first_x, first_y), -args.Roll_num)  # 滑轮向上滚动
+    time.sleep(1)
     with pynput.mouse.Events() as event:
         for i in event:
             if isinstance(i, pynput.mouse.Events.Click):
@@ -42,11 +50,11 @@ def roll():
                 sec_y = i.y
                 print(i.x, i.y, i.button, i.pressed)
                 break
-    return (first_x - sec_x) / n, (first_y - sec_y) / n
+    return (first_x - sec_x) / args.Roll_num, (first_y - sec_y) / args.Roll_num
 
 
 def mouse_click(x, y):
-    pyautogui.moveTo(x, y, duration=0.2)  # 鼠标移动到指定位置
+    pyautogui.moveTo(x, y, duration=args.Mouse_time)  # 鼠标移动到指定位置
     pyautogui.click(button='left')  # 在当前位置点击左键
 
 
@@ -56,12 +64,11 @@ def patient_export(key_x, key_y):
         mouse_click(key_x[i], key_y[i])
         if i == 6:
             mouse_click(key_x[i], key_y[i])
-            time.sleep(1)
+            time.sleep(args.Wait_time)
 
 
 if __name__ == "__main__":
     pyautogui.FAILSAFE = True  # 启用自动防故障功能，左上角的坐标为（0，0），将鼠标移到屏幕的左上角，来抛出failSafeException异常
-    screen_x, screen_y = pyautogui.size()  # 获取屏幕尺寸（分辨率×分辨率）
     capture_flag = pyautogui.alert(text="Press 'c' to capture the coordinates of the key points.\rPress 'r' to "
                                         "measure the distance scrolled by the scroll wheel.\rPress 's' to start "
                                         "automatic data export.", title='singal export')  # 提示关键点采集的弹窗
@@ -75,21 +82,19 @@ if __name__ == "__main__":
     patient_key_y = {key: value for key, value in a.y_mouse.items() if key in tech_names}
     patient_first_x = a.x_mouse[2]
     patient_first_y = a.y_mouse[2]
-    patient_sec_x = a.x_mouse[8]
-    patient_sec_y = a.y_mouse[8]
-    patient_last_x = a.x_mouse[9]
-    patient_last_y = a.y_mouse[9]
+    patient_last_x = a.x_mouse[8]
+    patient_last_y = a.y_mouse[8]
+    roll_y = a.y_mouse[9]
     # patient_y = patient_sec_y - patient_first_y
-    patient_y = 32  # 截图一个患者框，通过图片的像素值来确定
-    roll_y = a.y_mouse[10]
-    for i in range(80):
+    # patient_y = 29  # 截图一个患者框，通过图片的像素值来确定,该值过大会导致一些患者被漏掉
+    patient_y = (patient_last_y - patient_first_y) / args.Intervals_num
+    for i in range(args.Patient_num):
         patient_key_y[2] = patient_key_y[2] + patient_y
         if patient_key_y[2] > patient_last_y:
             n = math.floor((patient_last_y - patient_first_y) / roll_y)  # 鼠标滑轮滑动的次数
             pywinauto.mouse.scroll((patient_last_x, patient_last_y), -n)  # 负数，滑轮向下滚动
-            time.sleep(3)
             patient_key_y[2] = patient_key_y[2] - (n * roll_y)
-            print("滑动：", patient_key_y[2])
+            # print("滑动：", patient_key_y[2])
             patient_export(patient_key_x, patient_key_y)
         else:
             patient_export(patient_key_x, patient_key_y)

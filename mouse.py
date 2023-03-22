@@ -1,12 +1,9 @@
 import pyautogui
 import pynput
-import os
 from pynput.keyboard import Listener
 import time
 
 """鼠标监视，读取关键点坐标"""
-
-
 # with pynput.mouse.Events() as ent:
 #     for i in event:
 #         # 迭代用法。
