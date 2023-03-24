@@ -95,7 +95,10 @@ if __name__ == "__main__":
 
     patient_key_y[2] = patient_last_y
 
-    for j in range(Patient_num - args.Intervals_num):
+    for j in range(Patient_num - args.Intervals_num -1):
         mouse_click(patient_last_x, patient_last_y)
         pyautogui.press('down')
         patient_export(patient_key_x, patient_key_y)
+    txt = f'Export {Patient_num} patient data'
+    pyautogui.alert(text=txt, title='singal export')  # 提示关键点采集的弹窗
+
