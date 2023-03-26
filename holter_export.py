@@ -10,37 +10,7 @@ parser.add_argument('-Intervals_num', type=int, default=58, help='第一个病�
 # parser.add_argument('--Patient_num', type=int, default=80, help='导出的病人总数')
 parser.add_argument('--Wait_time', type=int, default=10, help='数据正在导出的等待时间（second）')
 args = parser.parse_args()
-
-
-def keyboard():
-    """读取鼠标当前所在位置"""
-    flag = pyautogui.alert(text='Please capture key coordinates.', title='singal export')  # 提示关键点采集的弹窗
-    if flag:
-        with pynput.mouse.Events() as event:
-            for i in event:
-                if isinstance(i, pynput.mouse.Events.Click):
-                    print(i.x, i.y, i.button, i.pressed)
-                    break  # 捕捉到一次关键点位置后，停止捕捉
-    return i.x, i.y
-
-
-def roll():
-    """读取鼠标当前所在位置"""
-    x = []
-    y = []
-    count = 0
-    flag = pyautogui.alert(text='Please capture key coordinates.', title='singal export')  # 提示关键点采集的弹窗
-    if flag:
-        with pynput.mouse.Events() as event:
-            for i in event:
-                if isinstance(i, pynput.mouse.Events.Click):
-                    count = count + 1
-                    print(i.x, i.y, i.button, i.pressed)
-                    x.append(i.x)
-                    y.append(i.y)
-                    if count == 4:
-                        break  # 捕捉到两次关键点位置后，停止捕捉
-    return x[3], y[3]
+"""固定关键点的坐标，不用采集坐标"""
 
 
 def mouse_click(x, y):
@@ -64,22 +34,17 @@ if __name__ == "__main__":
                                         "automatic data export.", title='singal export')  # 提示关键点采集的弹窗
 
     Patient_num = int(pyautogui.prompt('请输入要导出的患者总数：'))
-
-    """捕捉关键点坐标"""
-    a = listen([["c", keyboard, []], ["r", roll, []]], end_key='s')
-    a.run()
-    a.x_mouse.popitem()
-    a.y_mouse.popitem()
+    """关键点的坐标，已经提前测量好了"""
+    x_mouse = {1: 137, 2: 123, 3: 16, 4: 50, 5: 794, 6: 1100, 7: 1103, 8: 92}
+    y_mouse = {1: 1009, 2: 69, 3: 28, 4: 92, 5: 536, 6: 521, 7: 473, 8: 938}
     tech_names = {1, 2, 3, 4, 5, 6, 7}
-    patient_key_x = {key: value for key, value in a.x_mouse.items() if key in tech_names}
-    patient_key_y = {key: value for key, value in a.y_mouse.items() if key in tech_names}
-    patient_first_x = a.x_mouse[2]
-    patient_first_y = a.y_mouse[2]
-    patient_last_x = a.x_mouse[8]
-    patient_last_y = a.y_mouse[8]
+    patient_key_x = {key: value for key, value in x_mouse.items() if key in tech_names}
+    patient_key_y = {key: value for key, value in y_mouse.items() if key in tech_names}
+    patient_first_x = x_mouse[2]
+    patient_first_y = y_mouse[2]
+    patient_last_x = x_mouse[8]
+    patient_last_y = y_mouse[8]
     patient_y = (patient_last_y - patient_first_y) / args.Intervals_num
-    # print(a.x_mouse)
-    # print(a.y_mouse)
 
     for i in range(args.Intervals_num):
         if patient_key_y[2] <= patient_last_y:
@@ -94,4 +59,3 @@ if __name__ == "__main__":
         patient_export(patient_key_x, patient_key_y)
     txt = f'Export {Patient_num} patient data'
     pyautogui.alert(text=txt, title='singal export')  # 提示关键点采集的弹窗
-
