@@ -1,4 +1,4 @@
-"""参数说明"""
+"""关键点参数说明"""
 patient_chose_x = a.x_mouse[1]
 patient_chose_y = a.y_mouse[1]
 patient_first_x = a.x_mouse[2]
